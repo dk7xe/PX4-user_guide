@@ -20,8 +20,8 @@ The mission is typically created and uploaded with a Ground Control Station (GCS
 Missions are usually created in a ground control station (e.g. [QGroundControl](https://docs.qgroundcontrol.com/master/en/PlanView/PlanView.html)) and uploaded prior to launch.
 They may also be created by a developer API, and/or uploaded in flight.
 
-Individual [mission commands](#mission_commands) are handled in a way that is appropriate for each vehicle's flight characteristics (for example loiter is implemented as _hover_ for copter and _circle_ for fixed-wing).
-VTOL vehicles follow the behavior and parameters of fixed-wing when in FW mode, and of copter when in MC mode.
+[Mission commands](#mission_commands) are handled in a way that is appropriate for each fixed-wing flight characteristics (for example loiter is implemented as flying in a circle).
+
 
 :::note
 Missions are uploaded onto a SD card that needs to be inserted **before** booting up the autopilot.
@@ -35,11 +35,8 @@ At high level all vehicle types behave in the same way when MISSION mode is enga
    - If landed the vehicle will "wait".
 
 1. If a mission is stored and PX4 is flying it will execute the [mission/flight plan](../flying/missions.md) from the current step.
-   - On copters PX4 will treat a takeoff item as a normal waypoint if already flying.
-1. If a mission is stored and PX4 is landed:
-   - On copters PX4 will execute the [mission/flight plan](../flying/missions.md).
-     If the mission does not have a `TAKEOFF` command then PX4 will fly the vehicle to the minimum altitude before executing the remainder of the flight plan from the current step.
-   - On fixed-wing vehicles PX4 will not automatically take off (the autopilot will detect the lack of movement and set the throttle to zero).
+   - If already flying ?
+1. If a mission is stored and the vehicle is landed it will not automatically take off (the autopilot will detect the lack of movement and set the throttle to zero).
      If the currently active waypoint is a Takeoff, the system will automatically takeoff (see [FW Takeoff/Landing in Mission](#fw-mission-takeoff)).
 1. If no mission is stored, or if PX4 has finished executing all mission commands:
    - If flying the vehicle will loiter.
@@ -196,7 +193,6 @@ Note:
 
 PX4 expects to follow a straight line from the previous waypoint to the current target (it does not plan any other kind of path between waypoints - if you need one you can simulate this by adding additional waypoints).
 
-MC vehicles will change the _speed_ when approaching or leaving a waypoint based on the [jerk-limited](../config_mc/mc_jerk_limited_type_trajectory.md#auto-mode) tuning.
 The vehicle will follow a smooth rounded curve towards the next waypoint (if one is defined) defined by the acceptance radius ([NAV_ACC_RAD](../advanced_config/parameter_reference.md#NAV_ACC_RAD)).
 The diagram below shows the sorts of paths that you might expect.
 
@@ -211,17 +207,7 @@ Vehicles switch to the next waypoint as soon as they enter the acceptance radius
   - The equation is:
     $$L_{1_{distance}}=\frac{1}{\pi}L_{1_{damping}}L_{1_{period}}\left \| \vec{v}_{ {xy}_{ground} } \right \|$$
 
-## MC Mission Takeoff
-
-Plan a multicopter mission takeoff by adding a `Takeoff` mission item to the map (this corresponds to the [MAV_CMD_NAV_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_TAKEOFF) MAVLink command).
-
-During mission execution this will cause the vehicle to ascend vertically to the minimum takeoff altitude defined in the [MIS_TAKEOFF_ALT](../advanced_config/parameter_reference.md#MIS_TAKEOFF_ALT) parameter, then head towards the 3D position defined in the mission item.
-
-If a mission with no takeoff mission item is started, the vehicle will ascend to the minimum takeoff altitude and then proceed to the first `Waypoint` mission item.
-
-If the vehicle is already flying when the mission is started, a takeoff mission item is treated as a normal waypoint.
-
-## FW Mission Takeoff
+## Mission Takeoff
 
 Starting flights with mission takeoff (and landing using a mission landing) is the recommended way of operating a plane autonomously.
 
@@ -245,7 +231,7 @@ A fixed-wing mission requires a `Takeoff` mission item to takeoff; if however th
 
 For more infomormation about takeoff behaviour and configuration see [Takeoff mode (FW)](../flight_modes_fw/takeoff.md).
 
-## FW Mission Landing
+## Mission Landing
 
 Fixed-wing mission landing is the recommended way to land a plane autonomously.
 This can be planned in _QGroundControl_ using [fixed-wing landing pattern](https://docs.qgroundcontrol.com/master/en/PlanView/pattern_fixed_wing_landing.html).
