@@ -20,7 +20,7 @@ The mission is typically created and uploaded with a Ground Control Station (GCS
 Missions are usually created in a ground control station (e.g. [QGroundControl](https://docs.qgroundcontrol.com/master/en/PlanView/PlanView.html)) and uploaded prior to launch.
 They may also be created by a developer API, and/or uploaded in flight.
 
-[Mission commands](#mission_commands) are handled in a way that is appropriate for each fixed-wing flight characteristics (for example loiter is implemented as flying in a circle).
+[Mission commands](#mission-commands) are handled in a way that is appropriate for each fixed-wing flight characteristics (for example loiter is implemented as flying in a circle).
 
 :::note
 Missions are uploaded onto a SD card that needs to be inserted **before** booting up the autopilot.
