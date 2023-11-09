@@ -1,1 +1,1 @@
-<Redirect to="../flight_modes_mc/mission" />
+<Redirect to="../flight_modes_vtol/mission" />
