@@ -367,6 +367,6 @@ In landing mode, the distance sensor is used to determine proximity to the groun
 
 ## See Also
 
-- [Missions](flying/missions.md)
-  - [Package Delivery Mission](flying/package_delivery_mission.md)
-- [Mission Mode (MC)](flight_modes_mc/mission.md)
+- [Missions](../flying/missions.md)
+  - [Package Delivery Mission](../flying/package_delivery_mission.md)
+- [Mission Mode (MC)](../flight_modes_mc/mission.md)
