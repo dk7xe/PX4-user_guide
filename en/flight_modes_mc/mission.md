@@ -1,4 +1,4 @@
-# Mission Mode
+# Mission Mode (Multicopter)
 
 [<img src="../../assets/site/position_fixed.svg" title="Global position fix required (e.g. GPS)" width="30px" />](../getting_started/flight_modes.md#key_position_fixed)
 
@@ -11,7 +11,7 @@ The mission is typically created and uploaded with a Ground Control Station (GCS
 - The vehicle must be armed before this mode can be engaged.
 - This mode is automatic - no user intervention is _required_ to control the vehicle.
 - RC control switches can be used to change flight modes on any vehicle.
-- RC stick movement in a multicopter (or VTOL in multicopter mode) will [by default](#COM_RC_OVERRIDE) change the vehicle to [Position mode](../flight_modes_mc/position.md) unless handling a critical battery failsafe.
+- RC stick movement will [by default](#COM_RC_OVERRIDE) change the vehicle to [Position mode](../flight_modes_mc/position.md) unless handling a critical battery failsafe.
 
 :::
 
@@ -20,8 +20,7 @@ The mission is typically created and uploaded with a Ground Control Station (GCS
 Missions are usually created in a ground control station (e.g. [QGroundControl](https://docs.qgroundcontrol.com/master/en/PlanView/PlanView.html)) and uploaded prior to launch.
 They may also be created by a developer API, and/or uploaded in flight.
 
-Individual [mission commands](#mission_commands) are handled in a way that is appropriate for each vehicle's flight characteristics (for example loiter is implemented as _hover_ for copter and _circle_ for fixed-wing).
-VTOL vehicles follow the behavior and parameters of fixed-wing when in FW mode, and of copter when in MC mode.
+Individual [mission commands](#mission-commands) are handled in a way that is appropriate to multicopter flight characteristics (for example loiter is implemented as _hover_ ).
 
 :::note
 Missions are uploaded onto a SD card that needs to be inserted **before** booting up the autopilot.
@@ -31,16 +30,16 @@ At high level all vehicle types behave in the same way when MISSION mode is enga
 
 1. If no mission is stored, or if PX4 has finished executing all mission commands, or if the [mission is not feasible](#mission-feasibility-checks):
 
-   - If flying the vehicle will loiter.
+   - If flying the vehicle will hold.
    - If landed the vehicle will "wait".
 
 1. If a mission is stored and PX4 is flying it will execute the [mission/flight plan](../flying/missions.md) from the current step.
-   - On copters PX4 will treat a takeoff item as a normal waypoint if already flying.
+   - A `TAKEOFF` item is treated as a normal waypoint.
 1. If a mission is stored and PX4 is landed:
-   - On copters PX4 will execute the [mission/flight plan](../flying/missions.md).
-     If the mission does not have a `TAKEOFF` command then PX4 will fly the vehicle to the minimum altitude before executing the remainder of the flight plan from the current step.
+   - PX4 will execute the [mission/flight plan](../flying/missions.md).
+   - If the mission does not have a `TAKEOFF` item then PX4 will fly the vehicle to the minimum altitude before executing the remainder of the flight plan from the current step.
 1. If no mission is stored, or if PX4 has finished executing all mission commands:
-   - If flying the vehicle will loiter.
+   - If flying the vehicle will hold.
    - If landed the vehicle will "wait".
 1. You can manually change the current mission command by selecting it in _QGroundControl_.
 
@@ -56,9 +55,9 @@ At high level all vehicle types behave in the same way when MISSION mode is enga
    Enter the time to wait after landing before disarming the vehicle.
    :::
 
-Missions can be paused by switching out of mission mode to any other mode (such as [Hold mode](../flight_modes/hold.md) or [Position mode](../flight_modes/position_mc.md)), and resumed by switching back to mission mode.
+Missions can be paused by switching out of mission mode to any other mode (such as [Hold mode](../flight_modes_mc/hold.md) or [Position mode](../flight_modes_mc/position.md)), and resumed by switching back to mission mode.
 If the vehicle was not capturing images when it was paused, on resuming it will head from its _current position_ towards the same waypoint as it as was heading towards originally.
-If the vehicle was capturing images (has camera trigger items) it will instead head from its current position towards the last waypoint it travelled through (before pausing), and then retrace its path at the same speed and with the same camera triggering behaviour.
+If the vehicle was capturing images (has camera trigger items) it will instead head from its current position towards the last waypoint it traveled through (before pausing), and then retrace its path at the same speed and with the same camera triggering behaviour.
 This ensures that in survey/camera missions the planned path is captured.
 A mission can be uploaded while the vehicle is paused, in which which case the current active mission item is set to 1.
 
@@ -119,10 +118,12 @@ Parameters related to [mission feasibility checks](#mission-feasibility-checks):
 
 <a id="mission_commands"></a>
 
-## Supported Mission Commands
+## Mission Commands
 
 PX4 "accepts" the following MAVLink mission commands in Mission mode (with some _caveats_, given after the list).
 Unless otherwise noted, the implementation is as defined in the MAVLink specification.
+
+Mission Items:
 
 - [MAV_CMD_NAV_WAYPOINT](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_WAYPOINT)
   - _Param3_ (flythrough) is ignored. Flythrough is always enabled if _param 1_ (time_inside) > 0.
@@ -131,16 +132,6 @@ Unless otherwise noted, the implementation is as defined in the MAVLink specific
 - [MAV_CMD_NAV_LAND](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_LAND)
 - [MAV_CMD_NAV_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_TAKEOFF)
 - [MAV_CMD_NAV_LOITER_TO_ALT](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_LOITER_TO_ALT)
-- [MAV_CMD_NAV_VTOL_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_VTOL_TAKEOFF)
-  - `MAV_CMD_NAV_VTOL_TAKEOFF.param2` (transition heading) is ignored.
-    Instead the heading to the next waypoint is used for the transition heading. <!-- at LEAST until PX4 v1.13: https://github.com/PX4/PX4-Autopilot/issues/12660 -->
-- [MAV_CMD_NAV_VTOL_LAND](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_VTOL_LAND)
-- [MAV_CMD_NAV_FENCE_RETURN_POINT](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_RETURN_POINT)
-- [MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION)
-- [MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION)
-- [MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION)
-- [MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION)
-- [MAV_CMD_NAV_RALLY_POINT](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_RALLY_POINT)
 - [MAV_CMD_DO_JUMP](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_JUMP)
 - [MAV_CMD_NAV_ROI](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_ROI)
 - [MAV_CMD_DO_SET_ROI](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_ROI)
@@ -162,7 +153,6 @@ Unless otherwise noted, the implementation is as defined in the MAVLink specific
 - [MAV_CMD_DO_SET_CAM_TRIGG_DIST](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_CAM_TRIGG_DIST)
 - [MAV_CMD_DO_SET_CAM_TRIGG_INTERVAL](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_CAM_TRIGG_INTERVAL)
 - [MAV_CMD_SET_CAMERA_MODE](https://mavlink.io/en/messages/common.html#MAV_CMD_SET_CAMERA_MODE)
-- [MAV_CMD_DO_VTOL_TRANSITION](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_VTOL_TRANSITION)
 - [MAV_CMD_NAV_DELAY](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_DELAY)
 - [MAV_CMD_NAV_RETURN_TO_LAUNCH](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_RETURN_TO_LAUNCH)
 - [MAV_CMD_DO_CONTROL_VIDEO](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_CONTROL_VIDEO)
@@ -171,6 +161,26 @@ Unless otherwise noted, the implementation is as defined in the MAVLink specific
 - [MAV_CMD_OBLIQUE_SURVEY](https://mavlink.io/en/messages/common.html#MAV_CMD_OBLIQUE_SURVEY)
 - [MAV_CMD_DO_SET_CAMERA_ZOOM](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_CAMERA_ZOOM)
 - [MAV_CMD_DO_SET_CAMERA_FOCUS](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_CAMERA_FOCUS)
+- [MAV_CMD_NAV_VTOL_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_VTOL_TAKEOFF)
+  - `MAV_CMD_NAV_VTOL_TAKEOFF.param2` (transition heading) is ignored.
+    Instead the heading to the next waypoint is used for the transition heading. <!-- at LEAST until PX4 v1.13: https://github.com/PX4/PX4-Autopilot/issues/12660 -->
+- [MAV_CMD_NAV_VTOL_LAND](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_VTOL_LAND)
+
+GeoFence Definitions
+
+- [MAV_CMD_NAV_FENCE_RETURN_POINT](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_RETURN_POINT)
+- [MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION)
+- [MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION)
+- [MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION)
+- [MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION)
+
+Rally Points
+
+- [MAV_CMD_NAV_RALLY_POINT](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_RALLY_POINT)
+
+:::note
+Please add an issue report or PR if you find a missing/incorrect message.
+:::
 
 Note:
 
@@ -180,10 +190,6 @@ Note:
 - The list may become out of date as messages are added.
   You can check the current set by inspecting the code.
   Support is `MavlinkMissionManager::parse_mavlink_mission_item` in [/src/modules/mavlink/mavlink_mission.cpp](https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/mavlink/mavlink_mission.cpp).
-
-  :::note
-  Please add an issue report or PR if you find a missing/incorrect message.
-  :::
 
 ## Rounded turns: Inter-Waypoint Trajectory
 
@@ -195,18 +201,11 @@ The diagram below shows the sorts of paths that you might expect.
 
 ![acc-rad](../../assets/flying/acceptance_radius_mission.png)
 
-Vehicles switch to the next waypoint as soon as they enter the acceptance radius:
+Vehicles switch to the next waypoint as soon as they enter the acceptance radius ([NAV_ACC_RAD](../advanced_config/parameter_reference.md#NAV_ACC_RAD)).
 
-- For MC this radius is defined by [NAV_ACC_RAD](../advanced_config/parameter_reference.md#NAV_ACC_RAD).
-- For FW the acceptance radius is defined by the "L1 distance".
-  - The L1 distance is computed from two parameters: [NPFG_DAMPING](../advanced_config/parameter_reference.md#NPFG_DAMPING) and [NPFG_PERIOD](../advanced_config/parameter_reference.md#NPFG_PERIOD), and the current ground speed.
-  - By default, it's about 70 meters.
-  - The equation is:
-    $$L_{1_{distance}}=\frac{1}{\pi}L_{1_{damping}}L_{1_{period}}\left \| \vec{v}_{ {xy}_{ground} } \right \|$$
+## Mission Takeoff
 
-## MC Mission Takeoff
-
-Plan a multicopter mission takeoff by adding a `Takeoff` mission item to the map (this corresponds to the [MAV_CMD_NAV_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_TAKEOFF) MAVLink command).
+Plan a multicopter mission takeoff by adding a `TAKEOFF` mission item to the map (this corresponds to the [MAV_CMD_NAV_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_TAKEOFF) MAVLink command).
 
 During mission execution this will cause the vehicle to ascend vertically to the minimum takeoff altitude defined in the [MIS_TAKEOFF_ALT](../advanced_config/parameter_reference.md#MIS_TAKEOFF_ALT) parameter, then head towards the 3D position defined in the mission item.
 
@@ -214,12 +213,8 @@ If a mission with no takeoff mission item is started, the vehicle will ascend to
 
 If the vehicle is already flying when the mission is started, a takeoff mission item is treated as a normal waypoint.
 
+## See Also
 
-## VTOL Mission Takeoff
-
-Plan a VTOL mission takeoff by adding a `VTOL Takeoff` mission item to the map.
-
-During mission execution the vehicle will ascend vertically to the minimum takeoff altitude defined in the [MIS_TAKEOFF_ALT](../advanced_config/parameter_reference.md#MIS_TAKEOFF_ALT) parameter, then transition to fixed-wing mode with the heading defined in the mission item.
-After transitioning the vehicle heads towards the 3D position defined in the mission item.
-
-A VTOL mission requires a `VTOL Takeoff` mission item to takeoff; if however the vehicle is already flying when the mission is started the takeoff item will be treated as a normal waypoint.
+- [Missions](../flying/missions.md)
+  - [Package Delivery Mission](../flying/package_delivery_mission.md)
+- [Mission Mode (FW)](../flight_modes_fw/mission.md)

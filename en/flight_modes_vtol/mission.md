@@ -11,13 +11,17 @@ For more information see the specific docs for each mode:
 - [Mission Mode (MC)](../flight_modes_mc/mission.md)
 - [Mission Mode (FW)](../flight_modes_fw/mission.md)
 
-The following sections are specific to VTOL
+The following sections outline mission mode behaviour that is VTOL specificL.
 
 ## Mission Commands
 
-PX4 "accepts" the mission commands appropriate to whether it is configured as a fixed-wing or multicopter (see FW/MC mission mode docs).
+PX4 "accepts" the mission commands for fixed wing or multicopter when in those modes.
+
 The following VTOL-specific commands are as defined in the MAVLink specification.
 
+- [MAV_CMD_NAV_VTOL_TAKEOFF](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_VTOL_TAKEOFF)
+  - `MAV_CMD_NAV_VTOL_TAKEOFF.param2` (transition heading) is ignored.
+    Instead the heading to the next waypoint is used for the transition heading. <!-- at LEAST until PX4 v1.13: https://github.com/PX4/PX4-Autopilot/issues/12660 -->
 - [MAV_CMD_NAV_VTOL_LAND](https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_VTOL_LAND)
 - [MAV_CMD_DO_VTOL_TRANSITION](https://mavlink.io/en/messages/common.html#MAV_CMD_DO_VTOL_TRANSITION)
 
