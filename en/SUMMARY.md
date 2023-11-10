@@ -72,6 +72,7 @@
     * [Config/Tuning](config_fw/README.md)
       * [Rate/Attitude Controller Tuning Guide](config_fw/pid_tuning_guide_fixedwing.md)
       * [Altitude/Position Controller Tuning Guide](config_fw/position_tuning_guide_fixedwing.md)
+      * [Weight & Altitude Tuning](config_fw/weight_and_altitude_tuning.md)
       * [Trimming Guide](config_fw/trimming_guide_fixedwing.md)
     * [Reptile Dragon 2 (ARK6X)](frames_plane/reptile_dragon_2.md)
     * [Turbo Timber Evolution (Pixhawk 4 Mini)](frames_plane/turbo_timber_evolution.md)
